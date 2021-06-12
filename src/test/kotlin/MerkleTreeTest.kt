@@ -2,6 +2,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.IOException
+import java.lang.Exception
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -60,5 +61,19 @@ internal class MerkleTreeTest {
 
         val tree = MerkleTree(testFile)
         assertEquals("90be445a0ab1f7dd2703b27a9cfb8abc8d1234ad257ca3782c782635acbd4290", tree.rootHash)
+    }
+
+    @Test
+    fun invalidInitialize1() {
+        assertFailsWith<Exception> {
+            val tree = MerkleTree()
+        }
+    }
+
+    @Test
+    fun invalidInitialize2() {
+        assertFailsWith<Exception> {
+            val tree = MerkleTree("file.txt", ByteArray(32))
+        }
     }
 }

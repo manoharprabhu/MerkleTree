@@ -1,3 +1,6 @@
+import kotlinx.serialization.*
+
+@Serializable
 data class HashNode(
     val hash: ByteArray,
     val leftRange: Int,
