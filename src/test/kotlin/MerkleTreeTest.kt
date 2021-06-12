@@ -31,7 +31,7 @@ internal class MerkleTreeTest {
         val testFolder = classLoader.getResource("folder").path
 
         assertFailsWith<IOException> {
-            val tree = MerkleTree(testFolder)
+            MerkleTree(testFolder)
         }
     }
 
