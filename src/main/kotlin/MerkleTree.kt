@@ -8,10 +8,11 @@ class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
     private val messageDigest: MessageDigest by lazy {
         MessageDigest.getInstance("SHA-256")
     }
-    private val _rootHash: ByteArray
+
+    private val tree: HashNode
 
     val rootHash: String get() {
-        return String.format("%064x", BigInteger(1, _rootHash))
+        return String.format("%064x", BigInteger(1, tree.hash))
     }
 
     init {
@@ -23,10 +24,10 @@ class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
             throw IOException("Input should be a directory")
         }
 
-        _rootHash = constructTree()
+        tree = constructTree()
     }
 
-    private fun constructTree(): ByteArray {
+    private fun constructTree(): HashNode {
         val blockHashes = mutableListOf<ByteArray>()
         val block = ByteArray(blockSize)
         fileHandle.inputStream().buffered().use { input ->
@@ -46,19 +47,19 @@ class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
         return computeRootHash(blockHashes)
     }
 
-    private fun computeRootHash(blockHashes: List<ByteArray>): ByteArray {
+    private fun computeRootHash(blockHashes: List<ByteArray>): HashNode {
         return computeRootHashHelper(blockHashes, 0, blockHashes.size - 1)
     }
 
-    private fun computeRootHashHelper(blockHashes: List<ByteArray>, left: Int, right: Int): ByteArray {
+    private fun computeRootHashHelper(blockHashes: List<ByteArray>, left: Int, right: Int): HashNode {
         if(left == right) {
-            return blockHashes[left]
+            return HashNode(blockHashes[left], left, right, null, null)
         }
 
         val mid = left + (right - left) / 2
-        val leftHash = computeRootHashHelper(blockHashes, left, mid)
-        val rightHash = computeRootHashHelper(blockHashes, mid + 1, right)
-        return sha256(leftHash + rightHash)
+        val leftNode = computeRootHashHelper(blockHashes, left, mid)
+        val rightNode = computeRootHashHelper(blockHashes, mid + 1, right)
+        return HashNode(sha256(leftNode.hash + rightNode.hash), left, right, leftNode, rightNode)
     }
 
     private fun sha256(byteArray: ByteArray): ByteArray {
