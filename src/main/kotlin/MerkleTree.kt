@@ -1,10 +1,12 @@
+import kotlinx.serialization.cbor.Cbor
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
 import java.math.BigInteger
 import java.security.MessageDigest
 
-class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
-    private val fileHandle: File = File(fileName)
+class MerkleTree(fileName: String? = null, treeData: ByteArray? = null, private val blockSize: Int = 32 * 1024) {
+
     private val messageDigest: MessageDigest by lazy {
         MessageDigest.getInstance("SHA-256")
     }
@@ -15,19 +17,32 @@ class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
         return String.format("%064x", BigInteger(1, tree.hash))
     }
 
-    init {
-        require(fileHandle.exists()) {
-            throw IOException("File does not exist")
-        }
-
-        require(!fileHandle.isDirectory) {
-            throw IOException("Input should be a directory")
-        }
-
-        tree = constructTree()
+    fun serialize(): ByteArray {
+        return Cbor.encodeToByteArray(HashNode.serializer(), tree)
     }
 
-    private fun constructTree(): HashNode {
+    init {
+        // fileName or treeData mutually exclusive
+        if(!((fileName != null) xor (treeData != null))) {
+            throw Exception("Either fileName or treeData is required for initialization, but not both")
+        }
+
+        tree = if(fileName != null) {
+            val fileHandle = File(fileName)
+            require(fileHandle.exists()) {
+                throw IOException("File does not exist")
+            }
+
+            require(!fileHandle.isDirectory) {
+                throw IOException("Input should be a directory")
+            }
+            constructTree(fileHandle)
+        } else {
+            Cbor.decodeFromByteArray(HashNode.serializer(), treeData!!)
+        }
+    }
+
+    private fun constructTree(fileHandle: File): HashNode {
         val blockHashes = mutableListOf<ByteArray>()
         val block = ByteArray(blockSize)
         fileHandle.inputStream().buffered().use { input ->
