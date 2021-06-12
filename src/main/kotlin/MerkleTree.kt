@@ -3,9 +3,8 @@ import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
 
-class MerkleTree(fileName: String) {
+class MerkleTree(fileName: String, private val blockSize: Int = 32 * 1024) {
     private val fileHandle: File = File(fileName)
-    private val blockSize: Int = 32 * 1024 // 32 Kilobytes
     private val messageDigest: MessageDigest by lazy {
         MessageDigest.getInstance("SHA-256")
     }
