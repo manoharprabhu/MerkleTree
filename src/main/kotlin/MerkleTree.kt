@@ -37,13 +37,10 @@ class MerkleTree(
 
         tree = if(fileName != null) {
             val fileHandle = File(fileName)
-            require(fileHandle.exists()) {
-                throw IOException("File does not exist")
-            }
 
-            require(!fileHandle.isDirectory) {
-                throw IOException("Input should be a directory")
-            }
+            require(fileHandle.exists()) { "File does not exist" }
+            require(!fileHandle.isDirectory) { "Input should be a directory" }
+
             constructTree(fileHandle)
         } else {
             Cbor.decodeFromByteArray(HashNode.serializer(), treeData!!)

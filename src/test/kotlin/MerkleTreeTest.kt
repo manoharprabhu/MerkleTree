@@ -6,6 +6,7 @@ import java.io.FileReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.lang.Exception
+import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -25,7 +26,7 @@ internal class MerkleTreeTest {
 
     @Test
     fun initWithNonExistentFile() {
-        assertFailsWith<IOException> {
+        assertFailsWith<IllegalArgumentException> {
             val tree = MerkleTree("non existent")
         }
     }
@@ -35,7 +36,7 @@ internal class MerkleTreeTest {
         val classLoader = javaClass.classLoader
         val testFolder = classLoader.getResource("folder").path
 
-        assertFailsWith<IOException> {
+        assertFailsWith<IllegalArgumentException> {
             MerkleTree(testFolder)
         }
     }
