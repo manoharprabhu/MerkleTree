@@ -4,8 +4,12 @@ import java.io.IOException
 import java.lang.Exception
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.*
 
-class MerkleTree(fileName: String? = null, treeData: ByteArray? = null, private val blockSize: Int = 32 * 1024) {
+class MerkleTree(
+    fileName: String? = null,
+    treeData: ByteArray? = null,
+    private val blockSize: Int = 32 * 1024) {
 
     private val messageDigest: MessageDigest by lazy {
         MessageDigest.getInstance("SHA-256")
@@ -17,8 +21,12 @@ class MerkleTree(fileName: String? = null, treeData: ByteArray? = null, private 
         return String.format("%064x", BigInteger(1, tree.hash))
     }
 
-    fun serialize(): ByteArray {
+    private fun serialize(): ByteArray {
         return Cbor.encodeToByteArray(HashNode.serializer(), tree)
+    }
+
+    fun serializeToBase64(): String {
+        return Base64.getEncoder().encodeToString(serialize())
     }
 
     init {

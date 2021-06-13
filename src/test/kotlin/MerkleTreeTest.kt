@@ -1,8 +1,12 @@
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.File
+import java.io.FileReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.lang.Exception
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -75,5 +79,25 @@ internal class MerkleTreeTest {
         assertFailsWith<Exception> {
             val tree = MerkleTree("file.txt", ByteArray(32))
         }
+    }
+
+    @Test
+    fun serializeTest() {
+        val classLoader = javaClass.classLoader
+        val testFile = classLoader.getResource("test.txt").path
+
+        val tree = MerkleTree(testFile)
+        assertEquals("v2RoYXNonzhZGGU4WxhZGCAYQhgvOGIYQRh+GEgYZzA4IxhPOEc4XxhKGB8YPyAYHzhfGH44ZjhxOHkoKDhdGHo4HP9pbGVmdFJhbmdlAGpyaWdodFJhbmdlAGhsZWZ0Tm9kZfZpcmlnaHROb2Rl9v8=", tree.serializeToBase64())
+    }
+
+    @Test
+    fun deserializeTest() {
+        val classLoader = javaClass.classLoader
+        val testFile = classLoader.getResource("test_serialized.txt").path
+        val data = FileReader(File(testFile)).readText()
+
+        val tree = MerkleTree(treeData = Base64.getDecoder().decode(data))
+
+        assertEquals("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", tree.rootHash)
     }
 }
